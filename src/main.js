@@ -8,6 +8,11 @@ import 'element-ui/lib/theme-chalk/index.css';
 
 import router from './router';
 import i18n from './common/lang/index';
+
+import axios from 'axios';
+
+Vue.prototype.$ajax = axios;
+Vue.prototype.baseURL = '/leon-system/';
 Vue.config.productionTip = false;
 
 Vue.use(ElementUI, {

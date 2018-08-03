@@ -11,11 +11,11 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/api': {
-        target: 'http://192.168.160.172:8080',
+      '/leon-system/': {
+        target: 'http://192.168.160.192:8080',
         changeOrigin: true,
         pathRewrite: {
-          '^/api': '/api'
+          '^/leon-system': '/leon-system'
         }
       }
     },
