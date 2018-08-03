@@ -80,7 +80,7 @@
     computed: {},
     methods: {
       refreshCode: function () {
-        this.ruleForm.Url = "/leon-system/captcha.jpg'?t=" + new Date().getTime();
+        this.ruleForm.Url = "/leon-system/captcha.jpg'?ts=" + new Date().getTime();
       },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
