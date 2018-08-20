@@ -17,12 +17,22 @@
             default-active="1"
             class="el-menu-vertical-demo"
             :collapse="isCollapse"
+           :router="true"
             @select="handleSelect"
             background-color="#545c64"
             text-color="#fff">
             <div class="up" @click="isCollapse=!isCollapse">
               <i class="iconfont icon-home_shousuo_h_icon" :class="{fade: isCollapse}"></i>
             </div>
+            <NavMenu :navMenus="nav.menuList"></NavMenu>
+          </el-menu>
+          <!--<el-menu
+            class="el-menu-vertical-demo"
+            :collapse="isCollapse"
+            @select="handleSelect"
+            background-color="#545c64"
+            text-color="#fff">
+
             <template v-for="(item, index) in nav.menuList">
               <el-submenu :index="item.menuId+''">
                 <template slot="title">
@@ -36,18 +46,33 @@
                 </template>
               </el-submenu>
             </template>
-          </el-menu>
+          </el-menu>-->
         </el-scrollbar>
       </div>
       <div class="right">
         <div class="top_nav">
-          <el-tabs v-model="editableTabsValue" class="card" editable  type="card">
+          <div class="el-tabs__nav" style="    padding: 0 20px;
+    height: 40px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    line-height: 40px;
+    display: inline-block;
+    list-style: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #303133;
+    position: relative;
+    border: 1px solid #e4e7ed;
+    border-bottom: none;
+    border-radius: 0;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;">主页</div>
+          <el-tabs v-model="editableTabsValue" class="card" closable  @edit="removeTab" type="card">
             <el-tab-pane
-              :key="item.name"
+              :key="item.menuId"
               v-for="(item, index) in editableTabs"
-              :label="item.title"
+              :label="item.name"
               :name="item.name">
-              {{item.content}}
             </el-tab-pane>
           </el-tabs>
           <el-dropdown class="el-menu-demo">
@@ -61,17 +86,15 @@
             </el-dropdown-menu>
           </el-dropdown>
         </div>
+        <!-- 路由匹配到的组件将渲染在这里 -->
+        <router-view></router-view>
       </div>
     </div>
-    <el-row>
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-
-      </el-col>
-    </el-row>
   </div>
 </template>
 
 <script>
+  import NavMenu from '@/components/nav/index'
   export default {
     name: "index",
     data() {
@@ -80,7 +103,8 @@
         defaultHeader: require('../assets/images/header-default.png'),
         choiceNavList: [],
         nav: {
-          "menuList": [{
+          "menuList": [
+            {
             "menuId": 49,
             "parentId": 0,
             "parentName": null,
@@ -96,7 +120,7 @@
               "parentId": 49,
               "parentName": null,
               "name": "员工信息",
-              "url": "modules/check/user_message.html",
+              "url": "/sys/user",
               "perms": "user:list",
               "type": 1,
               "icon": "fa fa-address-book-o",
@@ -108,7 +132,7 @@
               "parentId": 49,
               "parentName": null,
               "name": "考勤记录",
-              "url": "modules/check/record_list.html",
+              "url": "/sys/menu",
               "perms": "",
               "type": 1,
               "icon": "fa fa-list",
@@ -164,7 +188,8 @@
               "open": null,
               "list": null
             }]
-          }, {
+          },
+            {
             "menuId": 1,
             "parentId": 0,
             "parentName": null,
@@ -200,7 +225,8 @@
               "open": null,
               "list": null
             }]
-          }, {
+          },
+            {
             "menuId": 38,
             "parentId": 0,
             "parentName": null,
@@ -224,7 +250,8 @@
               "open": null,
               "list": null
             }]
-          }, {
+          },
+            {
             "menuId": 39,
             "parentId": 0,
             "parentName": null,
@@ -248,12 +275,16 @@
               "open": null,
               "list": null
             }]
-          }]
+          }
+          ]
         },
-        editableTabsValue: '2',
+        editableTabsValue: '0',
         editableTabs: [],
-        tabIndex: 2
+        tabIndex: 0
       }
+    },
+    components:{
+      NavMenu
     },
     created() {
       this.handleMeun();
@@ -300,41 +331,43 @@
             if (item.menuId === parseInt(keyPath[0])) {
               item.list.find((items) => {
                 if (items.menuId === parseInt(keyPath[1])) {
-                  this.handleTabsEdit(items, 'add');
+                  this.addTab(items);
                 }
               })
             }
           });
         }
       },
-      handleTabsEdit(targetName, action) {
-        if (action === 'add') {
-          let newTabName = ++this.tabIndex + '';
-          this.editableTabs.push({
-            title: targetName.name,
-            name: newTabName,
-            content: 'New Tab content'
-          });
-          this.editableTabsValue = newTabName;
-        }
-        if (action === 'remove') {
-          let tabs = this.editableTabs;
-          let activeName = this.editableTabsValue;
-          if (activeName === targetName) {
-            tabs.forEach((tab, index) => {
-              if (tab.name === targetName) {
-                let nextTab = tabs[index + 1] || tabs[index - 1];
-                if (nextTab) {
-                  activeName = nextTab.name;
-                }
-              }
-            });
-          }
-
-          this.editableTabsValue = activeName;
-          this.editableTabs = tabs.filter(tab => tab.name !== targetName);
-        }
+      addTab(targetName) {
+        let newTabName = ++this.tabIndex + '';
+        this.editableTabs.push({
+          title: targetName.name,
+          name: targetName.name,
+          content: 'New Tab content'
+        });
+        this.editableTabsValue = newTabName;
       },
+      removeTab(targetName, action){
+        debugger;
+        let tabs = this.editableTabs;
+        let activeName = this.editableTabsValue;
+        if (activeName === targetName) {
+          tabs.forEach((tab, index) => {
+            if (tab.name === targetName) {
+              let nextTab = tabs[index + 1] || tabs[index - 1];
+              if (nextTab) {
+                activeName = nextTab.name;
+              }
+            }
+          });
+        }
+      /*  let rs = this.choiceNavList.filter((x) => {
+          return x === str;
+        });
+        this.choiceNavList.remove();*/
+        this.editableTabsValue = activeName;
+        this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+      }
     }
   }
 </script>
@@ -355,6 +388,9 @@
   .el-menu-item, .el-submenu__title, .el-submenu .el-menu-item {
     height: 50px;
     line-height: 50px;
+  }
+  .tablist{
+    border-left: none;
   }
 
 
